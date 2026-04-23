@@ -1,0 +1,39 @@
+.enhanced-team-card {
+  @apply bg-card border border-border rounded-xl p-6 transition-all duration-300;
+}
+
+.enhanced-team-card.drag-over {
+  @apply border-primary/50 shadow-lg shadow-primary/10;
+}
+
+.team-players-container {
+  @apply space-y-3;
+}
+
+.empty-team-slot {
+  @apply border-2 border-dashed border-border/50 rounded-lg p-8 text-center min-h-[120px] flex items-center justify-center transition-all duration-200;
+}
+
+.empty-slot-text {
+  @apply text-muted-foreground text-sm;
+}
+
+.player-with-remove {
+  @apply relative group cursor-move;
+}
+
+.player-with-remove:hover .remove-player-btn {
+  @apply opacity-100;
+}
+
+.remove-player-btn {
+  @apply absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 transition-opacity duration-200 hover:opacity-100;
+}
+
+.add-player-slot {
+  @apply border-2 border-dashed border-primary/30 rounded-lg p-2 cursor-pointer transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 flex items-center justify-center min-w-[60px] min-h-[60px];
+}
+
+.add-player-slot:hover svg {
+  @apply text-primary;
+}

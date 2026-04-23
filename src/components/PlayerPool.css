@@ -1,0 +1,48 @@
+.player-pool {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.player-pool-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.player-count {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}
+
+.player-pool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.player-pool-item {
+  cursor: grab;
+  transition: all 0.2s ease;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+}
+
+.player-pool-item:hover {
+  background-color: hsl(var(--muted) / 0.5);
+  transform: translateY(-2px);
+}
+
+.player-pool-item.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.empty-pool-message {
+  text-align: center;
+  padding: 2rem;
+  color: hsl(var(--muted-foreground));
+}

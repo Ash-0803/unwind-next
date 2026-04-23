@@ -1,7 +1,116 @@
-@import url("https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@100..900&family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bitcount+Grid+Double:wght@100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+
+/* Bitcount Grid Double font classes */
+.bitcount-grid-double-100 {
+  font-family: "Bitcount Grid Double", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
+}
+
+.bitcount-grid-double-200 {
+  font-family: "Bitcount Grid Double", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
+}
+
+.bitcount-grid-double-300 {
+  font-family: "Bitcount Grid Double", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
+}
+
+.bitcount-grid-double-400 {
+  font-family: "Bitcount Grid Double", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
+}
+
+.bitcount-grid-double-500 {
+  font-family: "Bitcount Grid Double", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
+}
+
+.bitcount-grid-double-600 {
+  font-family: "Bitcount Grid Double", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
+}
+
+.bitcount-grid-double-700 {
+  font-family: "Bitcount Grid Double", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
+}
+
+.bitcount-grid-double-800 {
+  font-family: "Bitcount Grid Double", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
+}
+
+.bitcount-grid-double-900 {
+  font-family: "Bitcount Grid Double", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -109,7 +218,7 @@
   --sidebar-ring: oklch(0.852 0.1269 195.0354);
   --destructive-foreground: oklch(0.9612 0 0);
 
-  --font-pixel: "Bitcount Grid Single", system-ui;
+  --font-pixel: "Bitcount Grid Double", system-ui;
 
   --font-sans: Source Code Pro, monospace;
   --font-serif: Source Code Pro, monospace;
@@ -152,6 +261,242 @@
     letter-spacing: var(--tracking-normal);
   }
   html {
-    @apply font-mono;
+    @apply font-sans;
   }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Bitcount Grid Double", system-ui, monospace;
+  }
+  /* Test element for debugging font loading */
+  .font-test {
+    font-family: "Bitcount Grid Single", system-ui, monospace;
+    font-size: 24px;
+    background: red;
+    color: white;
+    padding: 10px;
+    margin: 10px;
+  }
+}
+
+/* Enhanced Timer Styles */
+.enhanced-timer-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.timer-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  max-width: 320px;
+  width: 100%;
+}
+
+.timer-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    transparent,
+    var(--shadow-color, oklch(0.3775 0.0564 216.501) / 0.1)
+  );
+  pointer-events: none;
+}
+
+.timer-blinking {
+  animation: timerBlink 1s ease-in-out infinite;
+}
+
+.timer-low-time {
+  border-color: var(--destructive);
+  background: oklch(0.2293 0.0276 216.0674);
+}
+
+@keyframes timerBlink {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.1),
+      0 0 20px var(--shadow-color, oklch(0.3775 0.0564 216.501) / 0.3),
+      0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 8px rgba(0, 0, 0, 0.2),
+      0 0 40px var(--shadow-color, oklch(0.3775 0.0564 216.501) / 0.6),
+      0 8px 12px -1px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.timer-low-time.timer-blinking {
+  animation: timerBlinkRed 0.8s ease-in-out infinite;
+}
+
+@keyframes timerBlinkRed {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.1),
+      0 0 20px oklch(0.6168 0.2086 25.8088) / 0.3,
+      0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 8px rgba(0, 0, 0, 0.2),
+      0 0 40px oklch(0.6168 0.2086 25.8088) / 0.6,
+      0 8px 12px -1px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.timer-display {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.timer-text {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  transition: color 0.3s ease;
+}
+
+.timer-finished-text {
+  color: var(--destructive);
+  animation: pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.timer-label {
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.timer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.timer-main-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.timer-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timer-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  transform: translateY(-1px);
+}
+
+.timer-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.start-btn {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+
+.start-btn:hover:not(:disabled) {
+  background: var(--primary) / 0.9;
+}
+
+.pause-btn {
+  background: oklch(0.6168 0.2086 25.8088);
+  color: var(--destructive-foreground);
+  border-color: oklch(0.6168 0.2086 25.8088);
+}
+
+.reset-btn {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-color: var(--border);
+}
+
+.timer-presets {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preset-btn:hover:not(:disabled) {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.preset-btn.active {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-color: var(--accent);
+}
+
+.preset-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import SnowBackground from "@/components/SnowBackground";
+import Navbar from "@/components/Navbar";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -42,9 +43,12 @@ export default function RootLayout({
         jetbrainsMono.variable,
       )}
     >
-      <body className="min-h-full flex flex-col relative">
+      <body className="min-h-full flex flex-col relative bg-gradient-to-br from-background via-background to-muted/20">
         <SnowBackground />
-        <div className="relative z-10">{children}</div>
+        <div className="relative z-10 flex flex-col min-h-full">
+          <Navbar />
+          <main className="flex-1">{children}</main>
+        </div>
       </body>
     </html>
   );

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const HomePage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen">
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
@@ -20,7 +20,7 @@ const HomePage = () => {
               Team Activity Hub
             </div>
 
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tight">
+            <h1 className="text-6xl md:text-8xl font-bold tracking-tight font-heading">
               Build Teams.
               <br />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -79,9 +79,17 @@ const HomePage = () => {
                 height="32"
                 className="text-primary"
               >
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
                 <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             }
             title="Smart Team Generator"
@@ -100,7 +108,11 @@ const HomePage = () => {
                 height="32"
                 className="text-accent"
               >
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline
+                  points="22 12 18 12 15 21 9 3 6 12 2 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             }
             title="Live Scoreboard"
@@ -114,8 +126,11 @@ const HomePage = () => {
       {/* Players preview */}
       <section className="container mx-auto px-4 py-24 max-w-7xl">
         <div className="text-center space-y-6">
-          <h2 className="text-4xl font-bold">
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">18 Players</span> Ready to Compete
+          <h2 className="text-4xl font-bold font-heading">
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              18 Players
+            </span>{" "}
+            Ready to Compete
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Head over to Team Generator to randomly split them into action.
@@ -157,12 +172,18 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           {icon}
         </div>
       </div>
-      <h3 className="text-2xl font-semibold mb-4">{title}</h3>
+      <h3 className="text-2xl font-semibold mb-4 font-heading">{title}</h3>
       <p className="text-muted-foreground mb-6 leading-relaxed">{desc}</p>
       <div className="flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
         {linkLabel}
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </div>
     </Link>
