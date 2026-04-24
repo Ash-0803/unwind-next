@@ -7,6 +7,7 @@ import EnhancedTeamCard from "@/components/EnhancedTeamCard";
 import Counter from "@/components/Counter";
 import TemplateSidebar from "@/components/TemplateSidebar";
 import PlayerSelection from "@/components/PlayerSelection";
+import SuperAdminGuard from "@/components/SuperAdminGuard";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api";
 
@@ -586,4 +587,10 @@ const TeamsPage = () => {
   );
 };
 
-export default TeamsPage;
+const TeamsPageWithAuth = () => (
+  <SuperAdminGuard>
+    <TeamsPage />
+  </SuperAdminGuard>
+);
+
+export default TeamsPageWithAuth;

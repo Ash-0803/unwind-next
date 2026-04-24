@@ -4,10 +4,11 @@ import { gameDB } from "@/lib/database";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const game = await gameDB.getGameById(params.id);
+    const { id } = await params;
+    const game = await gameDB.getGameById(id);
 
     if (!game) {
       return NextResponse.json(
@@ -31,12 +32,13 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const updateData = await request.json();
 
-    const updatedGame = await gameDB.updateGame(params.id, updateData);
+    const updatedGame = await gameDB.updateGame(id, updateData);
 
     if (!updatedGame) {
       return NextResponse.json(
@@ -60,10 +62,11 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const deletedGame = await gameDB.deleteGame(params.id);
+    const { id } = await params;
+    const deletedGame = await gameDB.deleteGame(id);
 
     if (!deletedGame) {
       return NextResponse.json(
