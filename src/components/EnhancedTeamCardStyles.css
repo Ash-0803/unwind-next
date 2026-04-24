@@ -15,7 +15,11 @@
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
 }
-
+.team-players-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 .empty-team-slot {
   border: 2px dashed hsl(var(--border) / 0.5);
   border-radius: 0.5rem;
@@ -35,7 +39,6 @@
 
 .player-with-remove {
   position: relative;
-  cursor: move;
 }
 
 .player-with-remove:hover .remove-player-btn {
@@ -44,18 +47,27 @@
 
 .remove-player-btn {
   position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
-  background-color: hsl(var(--destructive));
-  color: hsl(var(--destructive-foreground));
+  top: 0;
+  right: 0;
+  background-color: hsl(var(--foreground));
+  color: hsl(var(--background));
   border-radius: 50%;
-  padding: 0.25rem;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .remove-player-btn:hover {
   opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .add-player-slot {

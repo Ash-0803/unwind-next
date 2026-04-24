@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
-import type { Team } from "@/types";
+import type { Team, GameState } from "@/types";
 
 // Extend THREE.Mesh to include custom properties for confetti particles
 interface ConfettiParticle extends THREE.Mesh {
@@ -17,24 +17,25 @@ const EndScreenPage = () => {
   const [winner, setWinner] = useState<Team | null>(null);
   const [isDraw, setIsDraw] = useState(false);
   const [confettiActive, setConfettiActive] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  // Mock teams data - in a real app, this would come from state management
-  const [teams] = useState<Team[]>([
-    {
-      id: "team-0",
-      name: "Alpha",
-      players: [],
-      score: 25,
-      color: "#0070FF",
-    },
-    {
-      id: "team-1",
-      name: "Beta",
-      players: [],
-      score: 20,
-      color: "#FF4D00",
-    },
-  ]);
+  // Load game data from sessionStorage
+  const [teams, setTeams] = useState<Team[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const finalGameState = sessionStorage.getItem("finalGameState");
+      if (finalGameState) {
+        try {
+          const gameState: GameState = JSON.parse(finalGameState);
+          setTeams(gameState.teams);
+        } catch (error) {
+          console.error("Error parsing final game state:", error);
+        }
+      }
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -241,8 +242,64 @@ const EndScreenPage = () => {
   }, [winner, isDraw, confettiActive]);
 
   const handleNewGame = () => {
+    // Clear session storage
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("finalGameState");
+      sessionStorage.removeItem("currentGameId");
+      sessionStorage.removeItem("gameTeams");
+    }
     router.push("/teams");
   };
+
+  // Show loading state while game data is being loaded
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading results...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if no game data is available
+  if (teams.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold font-heading mb-2">
+            No Results Found
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            No game results found. Please complete a game first.
+          </p>
+          <button
+            onClick={handleNewGame}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+          >
+            Start New Game
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!winner && !isDraw) {
     return (

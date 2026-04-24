@@ -301,7 +301,6 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  max-width: 320px;
   width: 100%;
 }
 
@@ -499,4 +498,21 @@
 .preset-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+.player-card-compact {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+.player-avatar-compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10rem;
+  height: 10rem;
+}
+.player-avatar-compact img {
+  width: auto;
+  height: 100%;
 }

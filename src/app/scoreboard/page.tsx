@@ -1,11 +1,18 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import type { GameState, TimerState, Team } from "@/types";
+import type {
+  GameState,
+  TimerState,
+  Team,
+  GameHistory,
+  GameDetails,
+} from "@/types";
 import ScoreController from "@/components/ScoreController";
 import EnhancedTimer from "@/components/EnhancedTimer";
 import LoadingAnimation from "@/components/LoadingAnimation";
 import { useRouter } from "next/navigation";
+import { apiClient } from "@/lib/api";
 
 function makeTimer(duration = 60): TimerState {
   return { duration, remaining: duration, isRunning: false };
@@ -19,30 +26,40 @@ function formatLoggedTime(seconds: number): string {
 
 const ScoreboardPage = () => {
   const router = useRouter();
+  const [currentGameId, setCurrentGameId] = useState<string | null>(null);
+  const [gameDetails, setGameDetails] = useState<GameDetails | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock game state - in a real app, this would come from state management
+  // Game state - initialized from sessionStorage or API
   const [gameState, setGameState] = useState<GameState>({
-    teams: [
-      {
-        id: "team-0",
-        name: "Alpha",
-        players: [],
-        score: 0,
-        color: "#0070FF",
-      },
-      {
-        id: "team-1",
-        name: "Beta",
-        players: [],
-        score: 0,
-        color: "#FF4D00",
-      },
-    ],
+    teams: [],
     totalRounds: 3,
     currentRound: 1,
     roundResults: [],
     isStarted: true,
   });
+
+  // Load game data on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const gameId = sessionStorage.getItem("currentGameId");
+      const teamsData = sessionStorage.getItem("gameTeams");
+
+      if (gameId && teamsData) {
+        setCurrentGameId(gameId);
+        try {
+          const teams = JSON.parse(teamsData);
+          setGameState((prev) => ({
+            ...prev,
+            teams: teams.map((team: Team) => ({ ...team, score: 0 })),
+          }));
+        } catch (error) {
+          console.error("Error parsing teams data:", error);
+        }
+      }
+      setLoading(false);
+    }
+  }, []);
 
   const { teams, currentRound, totalRounds, roundResults } = gameState;
 
@@ -195,13 +212,112 @@ const ScoreboardPage = () => {
         "Are you sure you want to reset the current game? Teams and scores will be cleared.",
       )
     ) {
+      // Clear session storage
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("currentGameId");
+        sessionStorage.removeItem("gameTeams");
+      }
       router.push("/teams");
+    }
+  };
+
+  const saveGameProgress = async () => {
+    if (!currentGameId) return;
+
+    try {
+      // Calculate final scores
+      const finalScores: Record<string, number> = {};
+      teams.forEach((team) => {
+        finalScores[team.id] = team.score;
+      });
+
+      // Determine winner
+      const winnerTeam = teams.reduce((prev, current) =>
+        prev.score > current.score ? prev : current,
+      );
+
+      // Update game in backend
+      const response = await apiClient.updateGame(currentGameId, {
+        teams: teams,
+        finalScores: finalScores,
+        winner: winnerTeam.id,
+        gameDetails: {
+          gameType: "Team Activity",
+          totalRounds: totalRounds,
+          location: "Default Location",
+          notes: `Game completed with ${teams.length} teams`,
+        },
+      });
+
+      if (!response.success) {
+        console.error("Failed to save game progress:", response.error);
+      }
+    } catch (error) {
+      console.error("Error saving game progress:", error);
+    }
+  };
+
+  const handleGameComplete = async () => {
+    await saveGameProgress();
+    // Store final game data for results page
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("finalGameState", JSON.stringify(gameState));
     }
   };
 
   const currentRoundResults = roundResults.find(
     (r) => r.roundNumber === currentRound,
   );
+
+  // Show loading state while game data is being loaded
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading game data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if no game data is available
+  if (teams.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold font-heading mb-2">
+            No Game Found
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            No active game found. Please start a new game from the teams page.
+          </p>
+          <button
+            onClick={() => router.push("/teams")}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+          >
+            Go to Teams
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -221,45 +337,25 @@ const ScoreboardPage = () => {
           {/* Left Side - Features (7 columns) */}
           <div className="lg:col-span-7 space-y-8">
             {/* Round and Timer Row */}
-            <div className="flex flex-col sm:flex-row gap-6 items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-6 items-center">
               {/* Round Info */}
-              <div className="flex items-center gap-6">
-                <button
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={handleReset}
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                  Reset Match
-                </button>
-                <div className="px-6 py-3 bg-primary/10 border border-primary/20 rounded-lg">
-                  <div className="text-xs text-primary font-medium mb-1">
-                    Round
-                  </div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-primary">
-                      {currentRound}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      / {totalRounds}
-                    </span>
-                  </div>
+
+              <div className="px-6 py-3 bg-primary/10 border border-primary/20 rounded-lg">
+                <div className="text-xs text-primary font-medium mb-1">
+                  Round
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold text-primary">
+                    {currentRound}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    / {totalRounds}
+                  </span>
                 </div>
               </div>
 
               {/* Enhanced Timer */}
-              <div className="flex-shrink-0 w-full sm:w-auto">
+              <div className="flex-1 w-full sm:w-auto">
                 <EnhancedTimer
                   timer={timer}
                   onStart={handleTimerStart}
@@ -449,6 +545,25 @@ const ScoreboardPage = () => {
               {/* Next Round Button */}
               <div className="mt-6 space-y-3">
                 <button
+                  className=" w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed  text-sm text-muted-foreground hover:text-background "
+                  onClick={handleReset}
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  Reset Match
+                </button>
+                <button
                   className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleNextRoundWithLoading}
                   disabled={currentRound >= totalRounds}
@@ -462,7 +577,10 @@ const ScoreboardPage = () => {
                 {currentRound >= totalRounds && (
                   <button
                     className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/90 transition-colors border border-border"
-                    onClick={() => router.push("/end")}
+                    onClick={async () => {
+                      await handleGameComplete();
+                      router.push("/end");
+                    }}
                   >
                     View Results
                   </button>

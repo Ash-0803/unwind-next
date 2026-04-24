@@ -1,0 +1,3 @@
+-- Migration 003 is now a no-op since created_by and updated_by columns
+-- were moved to migration 001 to fix dependency issues with RLS policies
+-- This migration is kept for version control consistency

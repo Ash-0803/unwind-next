@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import type { Team, Player } from "../types";
 import PlayerCard from "./PlayerCard";
 import ScoreController from "./ScoreController";
+import PlayerSelectionModal from "./PlayerSelectionModal";
 import "./EnhancedTeamCardStyles.css";
 
 interface EnhancedTeamCardProps {
@@ -13,7 +14,8 @@ interface EnhancedTeamCardProps {
   showScore?: boolean;
   animationDelay?: number;
   availablePlayers?: Player[];
-  selectedPlayers?: Player[]; // Add selectedPlayers prop for custom teams
+  selectedPlayers?: Player[];
+  allTeams?: Team[]; // Add allTeams prop to check player availability across all teams
 }
 
 const EnhancedTeamCard: React.FC<EnhancedTeamCardProps> = ({
@@ -23,45 +25,10 @@ const EnhancedTeamCard: React.FC<EnhancedTeamCardProps> = ({
   showScore = true,
   animationDelay = 0,
   availablePlayers = [],
-  selectedPlayers = [], // Default to empty array
+  selectedPlayers = [],
+  allTeams = [],
 }) => {
-  const [draggedPlayer, setDraggedPlayer] = useState<Player | null>(null);
-  const [dragOver, setDragOver] = useState(false);
-
-  const handleDragStart = (e: React.DragEvent, player: Player) => {
-    setDraggedPlayer(player);
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", player.id.toString());
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    setDragOver(true);
-  };
-
-  const handleDragLeave = () => {
-    setDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-
-    const playerId = parseInt(e.dataTransfer.getData("text/plain"));
-    // Use selectedPlayers for custom teams, availablePlayers for others
-    const playerPool =
-      selectedPlayers.length > 0 ? selectedPlayers : availablePlayers;
-    const player = playerPool.find((p) => p.id === playerId);
-
-    if (player && !team.players.find((p) => p.id === playerId)) {
-      const updatedTeam = {
-        ...team,
-        players: [...team.players, player],
-      };
-      onTeamUpdate(updatedTeam);
-    }
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleRemovePlayer = (playerId: number) => {
     const updatedTeam = {
@@ -71,121 +38,136 @@ const EnhancedTeamCard: React.FC<EnhancedTeamCardProps> = ({
     onTeamUpdate(updatedTeam);
   };
 
-  const handleAddPlayer = (player: Player) => {
-    if (!team.players.find((p) => p.id === player.id)) {
-      const updatedTeam = {
-        ...team,
-        players: [...team.players, player],
-      };
-      onTeamUpdate(updatedTeam);
-    }
+  const handleAddPlayers = (playersToAdd: Player[]) => {
+    const updatedTeam = {
+      ...team,
+      players: [...team.players, ...playersToAdd],
+    };
+    onTeamUpdate(updatedTeam);
+  };
+
+  // Get available players for this team (not already assigned to any team)
+  const getAvailablePlayersForTeam = () => {
+    const playerPool =
+      selectedPlayers.length > 0 ? selectedPlayers : availablePlayers;
+
+    // Get all players assigned to any team
+    const allAssignedPlayers = allTeams.flatMap((t) => t.players);
+
+    return playerPool.filter(
+      (player) =>
+        !allAssignedPlayers.some(
+          (assignedPlayer) => assignedPlayer.id === player.id,
+        ),
+    );
   };
 
   return (
-    <div
-      className={`enhanced-team-card ${dragOver ? "drag-over" : ""}`}
-      style={
-        {
-          "--accent": team.color,
-          "--delay": `${animationDelay}ms`,
-        } as React.CSSProperties
-      }
-    >
-      <div className="team-card-header">
-        <div className="team-badge" style={{ background: team.color }}>
-          {team.name.split(" ")[1]?.[0] ?? "T"}
-        </div>
-        <div className="team-header-info">
-          <h3 className="team-name font-heading">{team.name}</h3>
-          <span className="team-count">{team.players.length} members</span>
-        </div>
-        {showScore && (
-          <ScoreController
-            score={team.score}
-            onScoreChange={(score) => onScoreChange(team.id, score)}
-            accentColor={team.color}
-          />
-        )}
-      </div>
-
-      <div className="team-divider" style={{ background: team.color }} />
-
-      <div className="team-players-container">
-        {team.players.length === 0 ? (
-          <div
-            className="empty-team-slot"
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <span className="empty-slot-text">Drag players here</span>
+    <>
+      <div
+        className="enhanced-team-card"
+        style={
+          {
+            "--accent": team.color,
+            "--delay": `${animationDelay}ms`,
+          } as React.CSSProperties
+        }
+      >
+        <div className="team-card-header">
+          <div className="team-badge" style={{ background: team.color }}>
+            {team.name.split(" ")[1]?.[0] ?? "T"}
           </div>
-        ) : (
-          <div className="team-players-grid">
-            {team.players.map((player, index) => (
-              <div
-                key={player.id}
-                className="player-with-remove"
-                draggable
-                onDragStart={(e) => handleDragStart(e, player)}
+          <div className="team-header-info">
+            <h3 className="team-name font-heading">{team.name}</h3>
+            <span className="team-count">{team.players.length} members</span>
+          </div>
+          {showScore && (
+            <ScoreController
+              score={team.score}
+              onScoreChange={(score) => onScoreChange(team.id, score)}
+              accentColor={team.color}
+            />
+          )}
+        </div>
+
+        <div className="team-divider" style={{ background: team.color }} />
+
+        <div className="team-players-container">
+          {team.players.length === 0 ? (
+            <div className="empty-team-slot">
+              <span className="empty-slot-text">No players yet</span>
+              <button
+                className="mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                onClick={() => setIsModalOpen(true)}
               >
-                <PlayerCard player={player} compact accentColor={team.color} />
-                <button
-                  className="remove-player-btn"
-                  onClick={() => handleRemovePlayer(player.id)}
-                  title="Remove from team"
-                >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            ))}
-            <div
-              className="add-player-slot"
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => {
-                // Add first available player when clicked
-                const firstAvailable = availablePlayers.find(
-                  (p) => !team.players.find((tp) => tp.id === p.id),
-                );
-                if (firstAvailable) {
-                  handleAddPlayer(firstAvailable);
-                }
-              }}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 5v14M5 12h14"
-                />
-              </svg>
+                Add Players
+              </button>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="team-players-grid">
+              {team.players.map((player, index) => (
+                <div key={player.id} className="player-with-remove">
+                  <PlayerCard
+                    player={player}
+                    compact
+                    accentColor={team.color}
+                  />
+                  <button
+                    className="remove-player-btn"
+                    onClick={() => handleRemovePlayer(player.id)}
+                    title="Remove from team"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+              <div
+                className="add-player-slot"
+                onClick={() => setIsModalOpen(true)}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 5v14M5 12h14"
+                  />
+                </svg>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Player Selection Modal */}
+      <PlayerSelectionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        availablePlayers={getAvailablePlayersForTeam()}
+        currentTeamPlayers={team.players}
+        onPlayersSelected={handleAddPlayers}
+        teamName={team.name}
+      />
+    </>
   );
 };
 
