@@ -55,6 +55,7 @@ const TeamsPage = () => {
     useState<TeamGenerationMode>("numTeams");
   const [numTeams, setNumTeams] = useState(2);
   const [teamSize, setTeamSize] = useState(3);
+  const [totalRounds, setTotalRounds] = useState(3);
   const [customTeams, setCustomTeams] = useState<Team[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<TeamTemplate | null>(
     null,
@@ -122,9 +123,9 @@ const TeamsPage = () => {
       // Create game details
       const gameDetails: GameDetails = {
         gameType: "Team Activity",
-        totalRounds: 3, // Default value, can be made configurable
+        totalRounds: totalRounds,
         location: "Default Location", // Can be made configurable
-        notes: `Game created with ${teams.length} teams and ${teams.reduce((sum, team) => sum + team.players.length, 0)} players`,
+        notes: `Game created with ${teams.length} teams, ${totalRounds} rounds, and ${teams.reduce((sum, team) => sum + team.players.length, 0)} players`,
       };
 
       // Create game in backend
@@ -389,6 +390,17 @@ const TeamsPage = () => {
                   min={2}
                   max={12}
                   label="Number of Teams"
+                />
+              </div>
+
+              {/* Number of Rounds */}
+              <div className="mb-6">
+                <Counter
+                  value={totalRounds}
+                  onChange={setTotalRounds}
+                  min={1}
+                  max={99}
+                  label="Number of Rounds"
                 />
               </div>
 

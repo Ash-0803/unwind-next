@@ -53,6 +53,9 @@ const ScoreboardPage = () => {
             ...prev,
             teams: teams.map((team: Team) => ({ ...team, score: 0 })),
           }));
+
+          // Load game details to get total rounds
+          loadGameDetails(gameId);
         } catch (error) {
           console.error("Error parsing teams data:", error);
         }
@@ -60,6 +63,21 @@ const ScoreboardPage = () => {
       setLoading(false);
     }
   }, []);
+
+  const loadGameDetails = async (gameId: string) => {
+    try {
+      const response = await apiClient.getGameById(gameId);
+      if (response.success && response.data) {
+        setGameDetails(response.data.gameDetails);
+        setGameState((prev) => ({
+          ...prev,
+          totalRounds: response.data.gameDetails.totalRounds || 3,
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading game details:", error);
+    }
+  };
 
   const { teams, currentRound, totalRounds, roundResults } = gameState;
 

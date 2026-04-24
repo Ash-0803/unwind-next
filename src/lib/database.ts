@@ -45,11 +45,32 @@ class GameDatabase {
   async addGame(
     game: Omit<GameHistory, "id" | "createdAt">,
     userId?: string,
+    accessToken?: string,
   ): Promise<GameHistory> {
     try {
       const gameData = this.transformToSupabaseData(game);
 
-      const { data, error } = await supabase
+      // Create a client with user context if access token is provided
+      let client = supabase;
+      if (accessToken && userId) {
+        const { createClient } = await import("@supabase/supabase-js");
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+        client = createClient(supabaseUrl, supabaseAnonKey, {
+          global: {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          },
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+          },
+        });
+      }
+
+      const { data, error } = await client
         .from("games")
         .insert({
           ...gameData,
